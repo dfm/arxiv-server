@@ -104,7 +104,6 @@ def xml_to_json(xml_data, prefix):
 
         # Deal with dates.
         doc["updated"] = doc.get("updated", doc["created"])
-        print(doc["created"])
 
         # Yield this document.
         yield doc
