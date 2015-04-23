@@ -5,11 +5,8 @@ from __future__ import division, print_function
 
 __all__ = []
 
-import json
+from arxiv.oai import download
 from arxiv.database import add_abstracts
 
-with open("data.json", "r") as f:
-    abstracts = json.load(f)
-
-r = list(add_abstracts(abstracts))
+r = list(add_abstracts(download(start_date="2015-04-20")))
 print(len(r))

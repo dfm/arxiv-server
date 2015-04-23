@@ -33,6 +33,7 @@ def download(start_date=None, prefix="arXiv", max_tries=10):
     failures = 0
     while True:
         # Send the request.
+        print(params)
         r = requests.post(url, data=params)
         code = r.status_code
 
@@ -54,6 +55,7 @@ def download(start_date=None, prefix="arXiv", max_tries=10):
             content = r.text
             for doc in xml_to_json(content, prefix):
                 yield doc
+            print(doc["id"])
 
             # Look for a resumption token.
             token = resume_re.search(content)
@@ -101,6 +103,7 @@ def xml_to_json(xml_data, prefix):
                                       if k in a))
             for a in doc.get("authors", [])
         ]
+        doc["first_author"] = doc["authors"][0]
 
         # Deal with dates.
         doc["updated"] = doc.get("updated", doc["created"])

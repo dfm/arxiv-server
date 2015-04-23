@@ -15,6 +15,25 @@ arxiv_mappings = {
             "acm-class": {
                 "type": "string"
             },
+            "first_author": {
+                "properties": {
+                    "affiliation": {
+                        "type": "string"
+                    },
+                    "forenames": {
+                        "type": "string"
+                    },
+                    "fullname": {
+                        "type": "string"
+                    },
+                    "keyname": {
+                        "type": "string"
+                    },
+                    "suffix": {
+                        "type": "string"
+                    }
+                }
+            },
             "authors": {
                 "properties": {
                     "affiliation": {
