@@ -8,5 +8,5 @@ __all__ = []
 from arxiv.oai import download
 from arxiv.database import add_abstracts
 
-r = list(add_abstracts(download(start_date="2015-04-20")))
+r = list(add_abstracts(download(start_date="2015-04-22")))
 print(len(r))
