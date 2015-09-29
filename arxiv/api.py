@@ -7,7 +7,7 @@ __all__ = ["api"]
 from functools import wraps
 
 import flask
-from .database import db
+from .database import esdb
 
 api = flask.Blueprint("api", __name__)
 
@@ -41,37 +41,44 @@ def index():
     return flask.jsonify(message="hi")
 
 
-@api.route("/recent")
-@paginate
-def recent(skip=0, limit=50):
-    r = db.search(body={
-        "sort": [{"updated": {"order": "desc"}}, {"id": {"order": "desc"}}],
-        "query": {"match_all": {}},
-        "from": skip,
-        "size": limit,
-        "_source": ["id", "title", "authors", "updated", ],
-    })
+def _query_esdb(query, category=None, skip=0, limit=50, **extra_body):
+    if query is None:
+        return flask.jsonify(message="Invalid query"), 400
+    if category is not None:
+        query = dict(filtered={"filter": {"regexp": {"categories":
+                                                     category + ".*"}},
+                               "query": query})
+    body = dict({
+        "query": query, "from": skip, "size": limit,
+    }, **extra_body)
+    r = esdb.search(body=body)
     listings = r.get("hits", {}).get("hits", [])
     return flask.jsonify(count=len(listings), listings=listings)
+
+
+@api.route("/recent")
+@api.route("/recent/<category>")
+@paginate
+def recent(category=None, **kwargs):
+    kwargs["sort"] = [
+        {"updated": {"order": "desc"}},
+        {"created": {"order": "desc"}},
+        {"id": {"order": "asc"}}
+    ]
+    kwargs["_source"] = ["id", "title", "authors", "created", "updated",
+                         "categories", ]
+    return _query_esdb({"match_all": {}}, category=category, **kwargs)
 
 
 @api.route("/search")
+@api.route("/search/<category>")
 @paginate
-def search(skip=0, limit=50):
+def search(category=None, **kwargs):
     query = flask.request.args.get("q", None)
-    if query is None:
-        return flask.abort(404)
-    r = db.search(body={
-        "query": {
-            "query_string": {
-                "query": query,
-            }
-        },
-        "from": skip,
-        "size": limit,
-    })
-    listings = r.get("hits", {}).get("hits", [])
-    return flask.jsonify(count=len(listings), listings=listings)
+    if query is not None:
+        query = {"query_string": {"query": query,
+                                  "fields": ["_all", "title^2"]}}
+    return _query_esdb(query, category=category, **kwargs)
 
 
 # @login_manager.request_loader

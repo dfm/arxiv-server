@@ -2,7 +2,7 @@
 
 from __future__ import division, print_function
 
-__all__ = ["db", "get_db", "add_abstracts", "get_start_date"]
+__all__ = ["esdb", "get_db", "add_abstracts", "get_start_date"]
 
 from flask import _app_ctx_stack as stack
 
@@ -111,4 +111,4 @@ class FlaskES(object):
             ctx.elasticsearch = None
 
 
-db = FlaskES()
+esdb = FlaskES()
