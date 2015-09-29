@@ -2,11 +2,11 @@
 
 from __future__ import division, print_function
 
-__all__ = ["get_db", "add_abstracts", "get_date"]
+__all__ = ["get_db", "add_abstracts", "get_start_date"]
 
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import streaming_bulk
-from elasticsearch.exceptions import NotFoundError
+from elasticsearch.exceptions import NotFoundError, RequestError
 
 from .mappings import arxiv_mappings
 
@@ -41,9 +41,8 @@ def add_abstracts(entries):
     return streaming_bulk(es, actions)
 
 
-def get_start_date():
+def get_start_date(since="2000-01-01"):
     es = get_db()
-    since = "2000-01-01"
 
     try:
         # Try to get a document with a "fetched" entry.
@@ -55,7 +54,7 @@ def get_start_date():
             }
         ))
 
-    except NotFoundError:
+    except (NotFoundError, RequestError):
         # If none exist, accept the default.
         pass
 
