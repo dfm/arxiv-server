@@ -2,7 +2,7 @@
 
 from __future__ import division, print_function
 
-__all__ = ["download", "xml_to_json"]
+__all__ = ["download", "xml_to_json", "OAIError"]
 
 import re
 import time
@@ -90,6 +90,13 @@ def xml_to_json(xml_data, prefix):
 
     """
     tree = ET.fromstring(xml_data)
+
+    # Check for errors.
+    error = tree.find(base_tag("error"))
+    if error is not None:
+        raise OAIError(error.text)
+
+    # Loop over the entries.
     date = tree.find(base_tag("responseDate")).text
     for r in tree.findall(base_tag("metadata")):
         doc = _parse_node(r.find(arxiv_tag(prefix)), prefix)
@@ -132,3 +139,7 @@ def _parse_node(node, prefix):
 
     # This is a leaf node.
     return (nm, node.text)
+
+
+class OAIError(Exception):
+    pass

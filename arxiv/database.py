@@ -64,7 +64,7 @@ def get_start_date(since="2000-01-01"):
         if len(r["hits"]["hits"]):
             v = r["hits"]["hits"][0]["_source"]["fetched"]
             if v != "null":
-                since = v
+                since = v[:10]
 
     return since
 

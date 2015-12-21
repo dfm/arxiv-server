@@ -17,8 +17,11 @@ def create_app(settings_override=None):
     app.config.from_object(settings_override)
 
     esdb.init_app(app)
-    # login_manager.init_app(app)
 
     from .api import api
     app.register_blueprint(api, url_prefix="/api")
+
+    from .frontend import frontend
+    app.register_blueprint(frontend)
+
     return app
